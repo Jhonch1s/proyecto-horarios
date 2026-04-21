@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Docente - Horarios</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos base globales (Reutilizados del index) -->
+    <link rel="stylesheet" href="../style.css">
+    
+    <!-- Reutilizamos base de UI de admin pero acoplado a docente -->
+    <link rel="stylesheet" href="../admin/css/admin.css">
+    <!-- Estilos exclusivos del Docente -->
+    <link rel="stylesheet" href="css/docente.css">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-body">
+    
+    <div class="background-mesh"></div>
+
+    <div class="admin-wrapper">
+        <!-- Barra lateral Docente -->
+        <aside class="sidebar glass-panel-admin" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-admin" style="background: linear-gradient(135deg, #10B981, #059669);">
+                    <i data-lucide="book-open"></i>
+                </div>
+                <h2>Mi Panel</h2>
+                <button class="toggle-btn" id="sidebar-toggle">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul id="nav-menu">
+                    <!-- Nav items apuntando a módulos del docente -->
+                    <li class="nav-item">
+                        <a href="#" data-module="dashboard" class="active">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Resumen</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" data-module="mis-grupos">
+                            <i data-lucide="users"></i>
+                            <span>Mis Grupos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" data-module="mi-horario">
+                            <i data-lucide="calendar-clock"></i>
+                            <span>Mi Horario Semanal</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../index.html" class="nav-item logout-btn">
+                    <i data-lucide="log-out"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <header class="top-bar glass-panel-admin">
+                <div class="breadcrumb">
+                    <span id="current-module-title">Resumen</span>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar" style="background: #10B981;">P</div>
+                    <span>Profesor/a</span>
+                </div>
+            </header>
+
+            <!-- CONTENEDOR DINÁMICO (SPA) -->
+            <div id="module-container" class="module-container docente-container">
+                <div class="module-loader">
+                    <div class="admin-spinner" style="border-left-color: #10B981;"></div>
+                    <p>Cargando módulo...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modales -->
+    <div id="global-overlay" class="overlay hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../config.js?v=2"></script>
+    <script src="js/core.js?v=2" type="module"></script>
+</body>
+</html>

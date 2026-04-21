@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Horarios</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos base globales (Reutilizados para fondo dinámico) -->
+    <link rel="stylesheet" href="../style.css">
+    <!-- Estilos específicos del Admin -->
+    <link rel="stylesheet" href="css/admin.css">
+    
+    <!-- Lucide Icons (Ligero y estético para SVGs) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-body">
+    
+    <!-- Fondo dinámico (reutiliza el mesh original) -->
+    <div class="background-mesh"></div>
+
+    <div class="admin-wrapper">
+        <!-- Barra lateral -->
+        <aside class="sidebar glass-panel-admin" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-admin">
+                    <i data-lucide="calendar-clock"></i>
+                </div>
+                <h2>AdminPanel</h2>
+                <button class="toggle-btn" id="sidebar-toggle">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul id="nav-menu">
+                    <!-- Nav items referencian al 'module' que van a cargar -->
+                    <li class="nav-item">
+                        <a href="#" data-module="dashboard" class="active">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" data-module="docentes">
+                            <i data-lucide="users"></i>
+                            <span>Docentes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" data-module="grupos">
+                            <i data-lucide="layers"></i>
+                            <span>Grupos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" data-module="asignaciones">
+                            <i data-lucide="clipboard-list"></i>
+                            <span>Asignaciones</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" data-module="disponibilidad">
+                            <i data-lucide="clock"></i>
+                            <span>Disponibilidad</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" data-module="grillas">
+                            <i data-lucide="table"></i>
+                            <span>Grillas Horarias</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../index.html" class="nav-item logout-btn">
+                    <i data-lucide="log-out"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <header class="top-bar glass-panel-admin">
+                <div class="breadcrumb">
+                    <span id="current-module-title">Dashboard</span>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar">A</div>
+                    <span>Administrador</span>
+                </div>
+            </header>
+
+            <!-- CONTENEDOR DINÁMICO DE MÓDULOS (SPA) -->
+            <div id="module-container" class="module-container">
+                <!-- Por defecto un spinner hasta que cargue el módulo -->
+                <div class="module-loader">
+                    <div class="admin-spinner"></div>
+                    <p>Cargando módulo...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Contenedor para modales globales o overlays -->
+    <div id="global-overlay" class="overlay hidden"></div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuración Global -->
+    <script src="../config.js?v=2"></script>
+
+    <!-- Lógica Core SPA (Router simple) -->
+    <script src="js/core.js?v=2" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<div class="module-header">
+    <div>
+        <h2>Gestión de Docentes</h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Visualiza los perfiles de los catedráticos del sistema.</p>
+    </div>
+    <!-- Botón Nuevo Docente deshabilitado temporalmente -->
+    <button class="btn primary-btn btn-icon" id="btn-add-docente" style="display: none; width: auto; padding: 12px 20px;">
+        <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+        <span>Nuevo Docente</span>
+    </button>
+</div>
+
+<!-- CONTENEDOR ESTADO (Loader / Error) -->
+<div id="docentes-state-container" style="text-align: center; padding: 40px;">
+    <div class="admin-spinner" style="margin: 0 auto;"></div>
+</div>
+
+<!-- GRILLA DE DOCENTES -->
+<div class="grid-cards" id="docentes-grid" style="display: none;">
+    <!-- Las tarjetas se inyectarán aquí dinámicamente con JS -->
+</div>
+
+<!-- MODAL CREAR / EDITAR DOCENTE -->
+<div id="modal-docente" class="docentes-modal hidden">
+    <div class="docentes-modal-content glass-panel-admin">
+        <div class="modal-header">
+            <h3 id="modal-title">Editar Docente</h3>
+            <button class="close-btn" id="btn-close-modal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <form id="form-docente">
+            <input type="hidden" id="docente-id">
+            
+            <div class="input-group">
+                <label for="docente-nombre">Nombre</label>
+                <input type="text" id="docente-nombre" placeholder="Ej. Alan" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="docente-apellido">Apellido</label>
+                <input type="text" id="docente-apellido" placeholder="Ej. Turing" required>
+            </div>
+
+            <div class="input-group">
+                <label for="docente-departamento">Departamento</label>
+                <input type="text" id="docente-departamento" placeholder="Ej. Ciencias Exactas">
+            </div>
+
+            <div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
+                <input type="checkbox" id="docente-activo" checked style="width: auto; padding: 0;">
+                <label for="docente-activo" style="margin: 0; cursor: pointer;">Docente Activo (Visible en grillas)</label>
+            </div>
+
+            <div class="alert hidden" id="modal-alert"></div>
+
+            <div class="form-actions" style="margin-top: 20px; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn" id="btn-cancel-modal" style="width: auto; background: rgba(255,255,255,0.1); color: white;">Cancelar</button>
+                <button type="submit" class="btn primary-btn" style="width: auto;">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>

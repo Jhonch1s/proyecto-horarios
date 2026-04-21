@@ -1,14 +1,7 @@
 // ===== CONFIGURACIÓN DE SUPABASE =====
-// ¡IMPORTANTE! Validar la API KEY: 
-// La clave que proporcionaste ("sb_publishable_9YVf_oVQfe_BbpHYXRk3kw_32OXiaKq") parece ser de otra plataforma (ej. Stripe).
-// Normalmente las "anon public keys" de Supabase comienzan con "eyJ...". 
-// Aún así, la hemos colocado en el código. Si falla la conexión, 
-// ingresa a tu proyecto en supabase -> Settings -> API -> Project API keys -> "anon public", y pégala aquí:
-const SUPABASE_URL = 'https://ulpqftppqpctkpwdkebk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_9YVf_oVQfe_BbpHYXRk3kw_32OXiaKq'; 
-
-// Inicializar el cliente Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// La configuración fue movida a config.js
+// El cliente está disponible en window.supabaseClient
+const dbClient = window.supabaseClient;
 
 // ===== ELEMENTOS DEL DOM =====
 const loginContainerDiv = document.getElementById('login-container');
@@ -78,7 +71,7 @@ loginForm.addEventListener('submit', async (e) => {
     setLoading(btnLogin, true);
     
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await dbClient.auth.signInWithPassword({
             email: email,
             password: password,
         });
@@ -86,13 +79,19 @@ loginForm.addEventListener('submit', async (e) => {
         if (error) throw error;
         
         // Verificar si es un admin o un docente
-        const is_admin = data.user.user_metadata?.role === 'admin';
+        const role = data.user.user_metadata?.role || 'docente';
+        const is_admin = role === 'admin';
         
-        showAlert(loginAlert, `¡Bienvenido! Iniciaste sesión correctamente. ${is_admin ? '(Admin)' : '(Docente)'}`, 'success');
+        showAlert(loginAlert, `¡Bienvenido! Iniciaste sesión correctamente. Redirigiendo...`, 'success');
         
-        // Aquí puedes redireccionar al dashboard según el rol:
-        // if (is_admin) { window.location.href = '/admin-dashboard.html'; }
-        // else { window.location.href = '/docente-dashboard.html'; }
+        // Redirigir al dashboard correspondiente
+        setTimeout(() => {
+            if (is_admin) { 
+                window.location.href = 'admin/admin.html'; 
+            } else { 
+                window.location.href = 'docente/docente.html'; 
+            }
+        }, 1000);
 
     } catch (error) {
         let msg = "Error al iniciar sesión. Verifica tus credenciales.";
@@ -116,7 +115,7 @@ registerForm.addEventListener('submit', async (e) => {
     setLoading(btnRegister, true);
     
     try {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await dbClient.auth.signUp({
             email: email,
             password: password,
             options: {

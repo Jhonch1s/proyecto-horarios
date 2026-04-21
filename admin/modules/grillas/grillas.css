@@ -1,0 +1,17 @@
+/* modules/grillas/grillas.css */
+
+/* Reglas nativas para la impresión */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #module-container, #module-container * {
+        visibility: visible;
+    }
+    #module-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}

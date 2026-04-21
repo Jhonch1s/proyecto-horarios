@@ -1,0 +1,127 @@
+/* docente/css/docente.css */
+
+/* Redefinimos algunos colores sobre la base de admin para darle propia identidad (Ej. más verdes/azules claros) */
+
+.docente-container {
+    background: rgba(15, 23, 42, 0.6); 
+}
+
+/* Modificamos el hover activo del sidebar para que concuerde con el logo verde (opcional, para diferenciar pantallas) */
+.sidebar {
+    border-right: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.nav-item a.active {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.15), transparent);
+    border-left: 4px solid #10B981;
+    color: #fff;
+}
+
+/* Base Grilla Semanal */
+.schedule-grid-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: rgba(30, 41, 59, 0.4);
+}
+
+.schedule-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+}
+
+.schedule-table th, .schedule-table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.schedule-table th {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--text-main);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.schedule-table td.time-col {
+    background: rgba(0,0,0,0.2);
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.schedule-cell {
+    position: relative;
+    transition: background 0.3s;
+    height: 60px;
+}
+
+.schedule-cell:hover {
+    background: rgba(255,255,255,0.02);
+}
+
+/* Bloques de clases agendadas */
+.class-block {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.85), rgba(139, 92, 246, 0.85));
+    border-radius: 8px;
+    padding: 8px;
+    color: white;
+    font-size: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    margin: 2px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+    /* Animación de entrada */
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.class-block span.subject {
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.class-block span.group {
+    opacity: 0.9;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Filtro de Turnos */
+.turnos-filter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.turno-btn {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.turno-btn.active {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+    border-color: #10B981;
+}
+
+.turno-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.1);
+}
