@@ -12,12 +12,17 @@ export function init() {
     const gridContainer = document.getElementById('materias-grid');
     const stateContainer = document.getElementById('materias-state-container');
     const modalAlert = document.getElementById('modal-alert-materia');
+    
+    // Filtros
+    const filterPills = document.querySelectorAll('.filter-pill');
+    const btnClearFilters = document.getElementById('btn-clear-filters');
 
     // Cliente global de Supabase
     const supabase = window.supabaseClient;
     
-    // Lista local de materias
+    // Datos locales
     let localMaterias = [];
+    let activeFilters = [];
 
     // Función para mostrar alertas en el modal
     function showModalAlert(message, type = 'error') {
@@ -65,7 +70,7 @@ export function init() {
         if(materias.length === 0) {
             gridContainer.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: rgba(255,255,255,0.05); border-radius: 15px;">
-                    <p style="color:var(--text-muted)">No hay materias registradas aún.</p>
+                    <p style="color:var(--text-muted)">No hay materias que coincidan con los criterios.</p>
                 </div>
             `;
             return;
@@ -104,7 +109,7 @@ export function init() {
         attachEvents();
     }
 
-    // Delegación de eventos
+    // Delegación de eventos (Tarjetas)
     function attachEvents() {
         const editBtns = document.querySelectorAll('.btn-edit-materia');
         const toggleBtns = document.querySelectorAll('.btn-toggle-materia');
@@ -135,7 +140,7 @@ export function init() {
                         if (error) throw error;
 
                         localMaterias[matIndex].activo = newStatus;
-                        renderMaterias(localMaterias);
+                        applyFilters(); // Aplicar filtros actuales al refrescar
                     } catch (err) {
                         console.error("Error al cambiar estado:", err);
                         alert("Error al cambiar el estado: " + err.message);
@@ -145,6 +150,38 @@ export function init() {
             };
         });
     }
+
+    // Lógica de Filtrado
+    function applyFilters() {
+        if (activeFilters.length === 0) {
+            renderMaterias(localMaterias);
+            btnClearFilters.classList.add('hidden');
+        } else {
+            const filtered = localMaterias.filter(mat => activeFilters.includes(mat.grado));
+            renderMaterias(filtered);
+            btnClearFilters.classList.remove('hidden');
+        }
+    }
+
+    filterPills.forEach(pill => {
+        pill.onclick = () => {
+            const grado = pill.getAttribute('data-grado');
+            if (activeFilters.includes(grado)) {
+                activeFilters = activeFilters.filter(g => g !== grado);
+                pill.classList.remove('active');
+            } else {
+                activeFilters.push(grado);
+                pill.classList.add('active');
+            }
+            applyFilters();
+        };
+    });
+
+    btnClearFilters.onclick = () => {
+        activeFilters = [];
+        filterPills.forEach(p => p.classList.remove('active'));
+        applyFilters();
+    };
 
     // Modal Handlers
     function openModal(materiaData = null) {
@@ -176,7 +213,7 @@ export function init() {
     btnClose.onclick = closeModal;
     btnCancel.onclick = closeModal;
 
-    // Form Submit Handler (Crear / Editar)
+    // Form Submit Handler
     form.onsubmit = async (e) => {
         e.preventDefault();
         
@@ -195,14 +232,12 @@ export function init() {
 
             let result;
             if (id) {
-                // Editar
                 result = await supabase
                     .from('materias')
                     .update(payload)
                     .eq('id', id)
                     .select();
             } else {
-                // Crear
                 result = await supabase
                     .from('materias')
                     .insert([payload])
@@ -218,7 +253,7 @@ export function init() {
                 } else {
                     localMaterias.push(result.data[0]);
                 }
-                renderMaterias(localMaterias);
+                applyFilters(); // Refrescar con filtros aplicados
             }
 
             closeModal();

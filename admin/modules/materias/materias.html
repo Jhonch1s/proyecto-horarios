@@ -9,6 +9,20 @@
     </button>
 </div>
 
+<!-- BARRA DE FILTROS -->
+<div class="filter-container">
+    <span class="filter-label"><i data-lucide="filter"></i> Filtrar por Grado:</span>
+    <div class="filter-pills" id="grado-filters">
+        <button class="filter-pill" data-grado="7°">7°</button>
+        <button class="filter-pill" data-grado="8°">8°</button>
+        <button class="filter-pill" data-grado="9°">9°</button>
+        <button class="filter-pill" data-grado="1° EMS">1° EMS</button>
+        <button class="btn-clear-filters hidden" id="btn-clear-filters">
+            <i data-lucide="x-circle"></i> Limpiar
+        </button>
+    </div>
+</div>
+
 <!-- CONTENEDOR ESTADO (Loader / Error) -->
 <div id="materias-state-container" style="text-align: center; padding: 40px;">
     <div class="admin-spinner" style="margin: 0 auto;"></div>
