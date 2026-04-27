@@ -3,8 +3,8 @@
         <h2>Gestión de Docentes</h2>
         <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Visualiza los perfiles de los catedráticos del sistema.</p>
     </div>
-    <!-- Botón Nuevo Docente deshabilitado temporalmente -->
-    <button class="btn primary-btn btn-icon" id="btn-add-docente" style="display: none; width: auto; padding: 12px 20px;">
+    <!-- Botón Nuevo Docente habilitado -->
+    <button class="btn primary-btn btn-icon" id="btn-add-docente" style="width: auto; padding: 12px 20px;">
         <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
         <span>Nuevo Docente</span>
     </button>
@@ -48,9 +48,31 @@
                 <input type="text" id="docente-departamento" placeholder="Ej. Ciencias Exactas">
             </div>
 
-            <div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
-                <input type="checkbox" id="docente-activo" checked style="width: auto; padding: 0;">
-                <label for="docente-activo" style="margin: 0; cursor: pointer;">Docente Activo (Visible en grillas)</label>
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="docente-grado">Grado (1-7)</label>
+                    <input type="number" id="docente-grado" min="1" max="7" value="1" required>
+                </div>
+                <div class="input-group">
+                    <label for="docente-puntaje">Puntaje</label>
+                    <input type="number" id="docente-puntaje" step="0.01" value="0" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="docente-comentarios">Comentarios</label>
+                <textarea id="docente-comentarios" rows="3" placeholder="Información adicional..."></textarea>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="docente-efectivo" style="width: auto; padding: 0;">
+                    <label for="docente-efectivo">Docente Efectivo</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="docente-activo" checked style="width: auto; padding: 0;">
+                    <label for="docente-activo">Docente Activo (Visible en grillas)</label>
+                </div>
             </div>
 
             <div class="alert hidden" id="modal-alert"></div>

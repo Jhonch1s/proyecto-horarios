@@ -4,7 +4,7 @@ export function init() {
     console.log("Inicializando módulo Docentes...");
 
     // Inicializar variables del DOM del módulo
-    const btnAdd = document.getElementById('btn-add-docente'); // Este botón ahora está oculto
+    const btnAdd = document.getElementById('btn-add-docente'); 
     const modal = document.getElementById('modal-docente');
     const btnClose = document.getElementById('btn-close-modal');
     const btnCancel = document.getElementById('btn-cancel-modal');
@@ -74,7 +74,11 @@ export function init() {
                 </div>
                 <div class="docente-info">
                     <h4>${doc.nombre} ${doc.apellido}</h4>
-                    <p>${doc.departamento || 'Sin departamento asignado'}</p>
+                    <p>${doc.departamento || 'Sin departamento'}</p>
+                    <div style="margin-top:8px; font-size:12px; opacity:0.8;">
+                        <span style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">Grado ${doc.grado}</span>
+                        ${doc.efectivo ? '<span style="background:rgba(16,185,129,0.1); color:#10B981; padding:2px 6px; border-radius:4px; margin-left:5px;">Efectivo</span>' : ''}
+                    </div>
                 </div>
                 <div class="docente-actions">
                     <button class="btn-card-action btn-edit" data-id="${doc.id}">
@@ -98,16 +102,26 @@ export function init() {
 
     // Modal Handlers
     function openModal(docenteData = null) {
-        document.getElementById('modal-title').innerText = 'Editar Docente';
-        document.getElementById('form-docente').reset();
-        document.getElementById('modal-alert').classList.add('hidden');
+        modalAlert.classList.add('hidden');
+        form.reset();
         
         if (docenteData) {
+            document.getElementById('modal-title').innerText = 'Editar Docente';
             document.getElementById('docente-id').value = docenteData.id;
             document.getElementById('docente-nombre').value = docenteData.nombre;
             document.getElementById('docente-apellido').value = docenteData.apellido;
             document.getElementById('docente-departamento').value = docenteData.departamento || '';
-            document.getElementById('docente-activo').checked = docenteData.activo;
+            document.getElementById('docente-grado').value = docenteData.grado || 1;
+            document.getElementById('docente-puntaje').value = docenteData.puntaje || 0;
+            document.getElementById('docente-comentarios').value = docenteData.comentarios || '';
+            document.getElementById('docente-efectivo').checked = docenteData.efectivo || false;
+            document.getElementById('docente-activo').checked = docenteData.activo !== false;
+        } else {
+            document.getElementById('modal-title').innerText = 'Nuevo Docente';
+            document.getElementById('docente-id').value = '';
+            document.getElementById('docente-grado').value = 1;
+            document.getElementById('docente-puntaje').value = 0;
+            document.getElementById('docente-activo').checked = true;
         }
 
         modal.classList.remove('hidden');
@@ -117,56 +131,79 @@ export function init() {
         modal.classList.add('hidden');
     }
 
-    if (btnAdd) btnAdd.addEventListener('click', () => openModal(null)); // Por ahora oculto
-    btnClose.addEventListener('click', closeModal);
-    btnCancel.addEventListener('click', closeModal);
+    if (btnAdd) btnAdd.onclick = () => openModal(null);
+    btnClose.onclick = closeModal;
+    btnCancel.onclick = closeModal;
 
-    // Form Submit Handler (Editar)
-    form.addEventListener('submit', async (e) => {
+    // Form Submit Handler (Crear / Editar)
+    form.onsubmit = async (e) => {
         e.preventDefault();
         
         const id = document.getElementById('docente-id').value;
         const nombre = document.getElementById('docente-nombre').value;
         const apellido = document.getElementById('docente-apellido').value;
         const departamento = document.getElementById('docente-departamento').value;
+        const grado = parseInt(document.getElementById('docente-grado').value);
+        const puntaje = parseFloat(document.getElementById('docente-puntaje').value);
+        const comentarios = document.getElementById('docente-comentarios').value;
+        const efectivo = document.getElementById('docente-efectivo').checked;
         const activo = document.getElementById('docente-activo').checked;
 
-        if (!id) {
-            showModalAlert("Operación no permitida: Creación de docentes deshabilitada.", "error");
-            return;
-        }
+        const payload = { 
+            nombre, 
+            apellido, 
+            departamento, 
+            grado, 
+            puntaje, 
+            comentarios, 
+            efectivo, 
+            activo 
+        };
 
         try {
             const btnSubmit = form.querySelector('button[type="submit"]');
             btnSubmit.disabled = true;
             btnSubmit.textContent = 'Guardando...';
 
-            const { data, error } = await supabase
-                .from('docentes')
-                .update({ nombre, apellido, departamento, activo })
-                .eq('id', id)
-                .select();
-
-            if (error) throw error;
-
-            // Actualizar arreglo local
-            const index = localDocentes.findIndex(d => d.id === id);
-            if(index !== -1 && data && data.length > 0) {
-                localDocentes[index] = data[0];
+            let result;
+            if (id) {
+                // UPDATE
+                result = await supabase
+                    .from('docentes')
+                    .update(payload)
+                    .eq('id', id)
+                    .select();
+            } else {
+                // INSERT
+                result = await supabase
+                    .from('docentes')
+                    .insert([payload])
+                    .select();
             }
 
-            renderDocentes(localDocentes);
+            if (result.error) throw result.error;
+
+            if (result.data && result.data.length > 0) {
+                if (id) {
+                    const index = localDocentes.findIndex(d => d.id === id);
+                    if(index !== -1) localDocentes[index] = result.data[0];
+                } else {
+                    localDocentes.push(result.data[0]);
+                }
+                renderDocentes(localDocentes);
+            }
+
             closeModal();
             
         } catch (error) {
-            console.error("Error al actualizar docente:", error);
-            showModalAlert(error.message || "Error al actualizar", "error");
+            console.error("Error al guardar docente:", error);
+            showModalAlert(error.message || "Error al guardar", "error");
         } finally {
             const btnSubmit = form.querySelector('button[type="submit"]');
             btnSubmit.disabled = false;
             btnSubmit.textContent = 'Guardar';
         }
-    });
+    };
 
     // Delegación de eventos para los botones de las tarjetas
     function attachCardEvents() {
@@ -174,15 +211,15 @@ export function init() {
         const toggleBtns = document.querySelectorAll('.btn-toggle');
 
         editBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.onclick = (e) => {
                 const id = e.currentTarget.getAttribute('data-id');
                 const doc = localDocentes.find(d => d.id === id);
                 if (doc) openModal(doc);
-            });
+            };
         });
 
         toggleBtns.forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.onclick = async (e) => {
                 const id = e.currentTarget.getAttribute('data-id');
                 const docIndex = localDocentes.findIndex(d => d.id === id);
                 
@@ -191,9 +228,7 @@ export function init() {
                     const newStatus = !currentDoc.activo;
                     
                     try {
-                        // Optimistic UI update
                         e.currentTarget.disabled = true;
-                        
                         const { error } = await supabase
                             .from('docentes')
                             .update({ activo: newStatus })
@@ -203,14 +238,13 @@ export function init() {
 
                         localDocentes[docIndex].activo = newStatus;
                         renderDocentes(localDocentes);
-                        
                     } catch (error) {
                         console.error("Error al cambiar estado:", error);
                         alert("Error al cambiar el estado del docente.");
                         e.currentTarget.disabled = false;
                     }
                 }
-            });
+            };
         });
     }
 

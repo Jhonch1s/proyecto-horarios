@@ -137,7 +137,7 @@
 
 .docentes-modal-content {
     width: 100%;
-    max-width: 450px;
+    max-width: 550px;
     padding: 30px;
     transform: scale(1);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -169,4 +169,38 @@
 
 .close-btn:hover {
     color: white;
+}
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-group label {
+    margin: 0;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background: var(--input-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+    resize: none;
+}
+
+textarea:focus {
+    border-color: var(--primary);
 }
