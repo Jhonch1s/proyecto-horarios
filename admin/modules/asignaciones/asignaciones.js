@@ -25,6 +25,7 @@ export function init() {
     let localMaterias = [];
     let localDocentes = [];
     let localCeldas = [];
+    let localDocenteMateria = []; // Nueva tabla de relaciones
 
     // --- CARGA DE DATOS ---
 
@@ -33,29 +34,34 @@ export function init() {
             stateContainer.style.display = 'block';
             gridContainer.style.display = 'none';
 
-            // 1. Cargar Grupos
-            const { data: grupos } = await supabase.from('grupos').select('*').eq('activo', true).order('nombre');
+            // Carga en paralelo para mayor velocidad
+            const [
+                { data: grupos },
+                { data: materias },
+                { data: docentes },
+                { data: celdas },
+                { data: relDM }
+            ] = await Promise.all([
+                supabase.from('grupos').select('*').eq('activo', true).order('nombre'),
+                supabase.from('materias').select('*').eq('activo', true).order('nombre'),
+                supabase.from('docentes').select('*').eq('activo', true).order('apellido'),
+                supabase.from('grilla_institucional').select('*').order('orden'),
+                supabase.from('docente_materia').select('*')
+            ]);
+
             localGrupos = grupos || [];
-
-            // 2. Cargar Materias
-            const { data: materias } = await supabase.from('materias').select('*').eq('activo', true).order('nombre');
             localMaterias = materias || [];
-
-            // 3. Cargar Docentes
-            const { data: docentes } = await supabase.from('docentes').select('*').eq('activo', true).order('apellido');
             localDocentes = docentes || [];
-
-            // 4. Cargar Celdas (Grilla)
-            const { data: celdas } = await supabase.from('grilla_institucional').select('*').order('orden');
             localCeldas = celdas || [];
+            localDocenteMateria = relDM || [];
 
-            // 5. Cargar Asignaciones Existentes
+            // Cargar Asignaciones con Relaciones
             const { data: asignaciones, error } = await supabase
                 .from('asignaciones')
                 .select(`
                     *,
                     grupos ( nombre, grado ),
-                    materias ( nombre ),
+                    materias ( nombre, horas_semanales ),
                     docentes ( nombre, apellido ),
                     grilla_institucional ( dia, franja_horaria )
                 `);
@@ -84,17 +90,12 @@ export function init() {
             selectGrupo.appendChild(opt);
         });
 
-        // Poblamos Docentes (todos inicialmente)
-        selectDocente.innerHTML = '<option value="" disabled selected>Seleccione un docente</option>';
-        localDocentes.forEach(d => {
-            const opt = document.createElement('option');
-            opt.value = d.id;
-            opt.textContent = `${d.apellido}, ${d.nombre}`;
-            selectDocente.appendChild(opt);
-        });
+        // Limpiar dependientes
+        resetSelect(selectMateria, 'Primero seleccione un grupo');
+        resetSelect(selectDocente, 'Primero seleccione una materia');
+        resetSelect(selectCelda, 'Seleccione un horario');
 
         // Poblamos Celdas
-        selectCelda.innerHTML = '<option value="" disabled selected>Seleccione un horario</option>';
         localCeldas.forEach(c => {
             const opt = document.createElement('option');
             opt.value = c.id;
@@ -103,19 +104,25 @@ export function init() {
         });
     }
 
-    // --- LÓGICA DE FILTRADO DINÁMICO ---
+    function resetSelect(element, text) {
+        element.innerHTML = `<option value="" disabled selected>${text}</option>`;
+        element.disabled = true;
+    }
 
+    // --- LÓGICA DE FILTRADO DINÁMICO EN CASCADA ---
+
+    // 1. Al cambiar GRUPO -> Filtrar MATERIAS
     selectGrupo.onchange = () => {
         const grupoId = selectGrupo.value;
         const grupo = localGrupos.find(g => g.id === grupoId);
 
+        resetSelect(selectMateria, 'Seleccione una materia');
+        resetSelect(selectDocente, 'Primero seleccione una materia');
+
         if (grupo) {
             infoGrado.textContent = `Grado detectado: ${grupo.grado || 'No definido'}`;
-            
-            // Filtrar materias por el grado del grupo
             const materiasFiltradas = localMaterias.filter(m => m.grado === grupo.grado);
             
-            selectMateria.innerHTML = '<option value="" disabled selected>Seleccione una materia</option>';
             if (materiasFiltradas.length > 0) {
                 materiasFiltradas.forEach(m => {
                     const opt = document.createElement('option');
@@ -126,40 +133,64 @@ export function init() {
                 selectMateria.disabled = false;
             } else {
                 selectMateria.innerHTML = '<option value="" disabled selected>No hay materias para este grado</option>';
-                selectMateria.disabled = true;
             }
         }
     };
 
-    // --- RENDERIZADO ---
+    // 2. Al cambiar MATERIA -> Filtrar DOCENTES habilitados
+    selectMateria.onchange = () => {
+        const materiaId = selectMateria.value;
+        resetSelect(selectDocente, 'Seleccione un docente');
+
+        if (materiaId) {
+            // Obtener IDs de docentes que pueden dar esta materia
+            const docenteIdsHabilitados = localDocenteMateria
+                .filter(rel => rel.materia_id === materiaId)
+                .map(rel => rel.docente_id);
+
+            const docentesFiltrados = localDocentes.filter(d => docenteIdsHabilitados.includes(d.id));
+
+            if (docentesFiltrados.length > 0) {
+                docentesFiltrados.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.textContent = `${d.apellido}, ${d.nombre}`;
+                    selectDocente.appendChild(opt);
+                });
+                selectDocente.disabled = false;
+            } else {
+                selectDocente.innerHTML = '<option value="" disabled selected>No hay docentes habilitados</option>';
+            }
+        }
+    };
+
+    // --- RENDERIZADO PREMIUM ---
 
     function renderAsignaciones() {
         gridContainer.innerHTML = '';
         if (localAsignaciones.length === 0) {
-            gridContainer.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1;">No hay asignaciones registradas.</p>';
+            gridContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:50px; opacity:0.5;"><i data-lucide="info" style="width:40px; height:40px; margin-bottom:10px;"></i><p>No hay asignaciones registradas.</p></div>';
+            if (window.lucide) window.lucide.createIcons();
             return;
         }
 
         localAsignaciones.forEach(asig => {
             const card = document.createElement('div');
-            card.className = 'docente-card'; // Reutilizamos estilo
+            card.className = 'asignacion-card';
             card.innerHTML = `
-                <div class="docente-info">
-                    <h4 style="color: var(--primary);">${asig.grupos?.nombre || 'Grupo eliminado'}</h4>
-                    <p><strong>${asig.materias?.nombre || 'Materia eliminada'}</strong></p>
-                    <p style="font-size: 13px; margin-top: 5px;">
-                        <i data-lucide="user" style="width:12px; height:12px;"></i> 
-                        ${asig.docentes ? asig.docentes.apellido + ', ' + asig.docentes.nombre : 'Sin docente'}
-                    </p>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
-                        <i data-lucide="clock" style="width:12px; height:12px;"></i>
-                        ${asig.grilla_institucional ? asig.grilla_institucional.dia + ' ' + asig.grilla_institucional.franja_horaria : 'Sin horario'}
-                    </p>
-                </div>
-                <div class="docente-actions">
-                    <button class="btn-card-action btn-delete-asig" data-id="${asig.id}" style="color: var(--danger);">
-                        <i data-lucide="trash-2"></i> Eliminar
+                <div class="asig-header">
+                    <span class="asig-grupo-name">${asig.grupos?.nombre || 'G/E'}</span>
+                    <button class="btn-delete-asig" data-id="${asig.id}" title="Eliminar">
+                        <i data-lucide="trash-2" style="width:16px; height:16px;"></i>
                     </button>
+                </div>
+                <div class="asig-materia-name">${asig.materias?.nombre || 'M/E'}</div>
+                <div class="asig-detail">
+                    <i data-lucide="user"></i>
+                    <span>${asig.docentes ? asig.docentes.apellido + ', ' + asig.docentes.nombre : 'Sin docente'}</span>
+                </div>
+                <div class="asig-badge-horario">
+                    ${asig.grilla_institucional ? asig.grilla_institucional.dia + ' | ' + asig.grilla_institucional.franja_horaria : 'S/H'}
                 </div>
             `;
             gridContainer.appendChild(card);
@@ -173,9 +204,14 @@ export function init() {
         document.querySelectorAll('.btn-delete-asig').forEach(btn => {
             btn.onclick = async () => {
                 const id = btn.getAttribute('data-id');
-                if (confirm('¿Está seguro de eliminar esta asignación?')) {
-                    const { error } = await supabase.from('asignaciones').delete().eq('id', id);
-                    if (!error) fetchData();
+                if (confirm('¿Desea eliminar esta asignación horaria?')) {
+                    try {
+                        const { error } = await supabase.from('asignaciones').delete().eq('id', id);
+                        if (error) throw error;
+                        fetchData();
+                    } catch (err) {
+                        alert("Error al eliminar: " + err.message);
+                    }
                 }
             };
         });
@@ -185,8 +221,8 @@ export function init() {
 
     function openModal() {
         form.reset();
-        selectMateria.disabled = true;
         infoGrado.textContent = '';
+        populateInitialSelects();
         modal.classList.remove('hidden');
     }
 
@@ -200,20 +236,43 @@ export function init() {
 
     form.onsubmit = async (e) => {
         e.preventDefault();
-        const payload = {
-            grupo_id: selectGrupo.value,
-            materia_id: selectMateria.value,
-            docente_id: selectDocente.value,
-            celda_id: parseInt(selectCelda.value)
-        };
+        
+        const grupo_id = selectGrupo.value;
+        const materia_id = selectMateria.value;
+        const docente_id = selectDocente.value;
+        const celda_id = parseInt(selectCelda.value);
+
+        // Validación de Conflictos Básica (Opcional pero útil)
+        const conflictoDocente = localAsignaciones.find(a => a.docente_id === docente_id && a.celda_id === celda_id);
+        if (conflictoDocente) {
+            alert(`Conflicto: El docente ya tiene una clase asignada en este horario (${conflictoDocente.grupos.nombre}).`);
+            return;
+        }
+
+        const conflictoGrupo = localAsignaciones.find(a => a.grupo_id === grupo_id && a.celda_id === celda_id);
+        if (conflictoGrupo) {
+            alert(`Conflicto: El grupo ya tiene otra materia asignada en este horario.`);
+            return;
+        }
+
+        const payload = { grupo_id, materia_id, docente_id, celda_id };
 
         try {
+            const btnSubmit = form.querySelector('button[type="submit"]');
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Procesando...';
+
             const { error } = await supabase.from('asignaciones').insert([payload]);
             if (error) throw error;
+            
             fetchData();
             closeModal();
         } catch (error) {
             alert("Error al guardar: " + error.message);
+        } finally {
+            const btnSubmit = form.querySelector('button[type="submit"]');
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Guardar Asignación';
         }
     };
 
