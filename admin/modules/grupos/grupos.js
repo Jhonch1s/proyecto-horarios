@@ -21,6 +21,10 @@ export function init() {
     const btnCancelCiclo = document.getElementById('btn-cancel-modal-ciclo');
     const formCiclo = document.getElementById('form-ciclo');
     const modalAlertCiclo = document.getElementById('modal-alert-ciclo');
+    
+    // DOM Filtros
+    const filterTurno = document.getElementById('filter-turno');
+    const filterCiclo = document.getElementById('filter-ciclo');
 
     const supabase = window.supabaseClient;
     
@@ -46,16 +50,50 @@ export function init() {
             localCiclos = data || [];
             
             cicloSelect.innerHTML = '<option value="" disabled selected>Seleccione un ciclo</option>';
+            filterCiclo.innerHTML = '<option value="all">Todos los años</option>';
+
             localCiclos.forEach(c => {
+                // Para el modal
                 const opt = document.createElement('option');
                 opt.value = c.id;
                 opt.textContent = `${c.anio} - ${c.descripcion || ''}`;
                 cicloSelect.appendChild(opt);
+
+                // Para el filtro
+                const optFilter = document.createElement('option');
+                optFilter.value = c.id;
+                optFilter.textContent = `${c.anio} ${c.descripcion ? '(' + c.descripcion + ')' : ''}`;
+                filterCiclo.appendChild(optFilter);
             });
         } catch (error) {
             console.error("Error al cargar ciclos:", error);
             cicloSelect.innerHTML = '<option value="" disabled>Error al cargar ciclos</option>';
+            filterCiclo.innerHTML = '<option value="all">Error al cargar</option>';
         }
+    }
+
+    // Aplicar filtros y ordenamiento
+    function applyFilters() {
+        let filtered = [...localGrupos];
+
+        // 1. Filtrar por Turno
+        const t = filterTurno.value;
+        if (t !== 'all') {
+            filtered = filtered.filter(g => g.turno === t);
+        }
+
+        // 2. Filtrar por Ciclo
+        const c = filterCiclo.value;
+        if (c !== 'all') {
+            filtered = filtered.filter(g => g.ciclo_lectivo_id == c);
+        }
+
+        // 3. Ordenamiento Alfanumérico (7°, 8°, 1° EMS...)
+        filtered.sort((a, b) => {
+            return a.nombre.localeCompare(b.nombre, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        renderGrupos(filtered);
     }
 
     // Cargar grupos
@@ -75,7 +113,7 @@ export function init() {
             if (error) throw error;
 
             localGrupos = data || [];
-            renderGrupos(localGrupos);
+            applyFilters();
             
             stateContainer.style.display = 'none';
             gridContainer.style.display = 'grid';
@@ -180,6 +218,14 @@ export function init() {
             document.getElementById('grupo-activo').checked = true;
         }
         modalGrupo.classList.remove('hidden');
+        
+        // Desplazar al inicio del contenedor y dar foco al primer campo
+        const container = document.getElementById('module-container');
+        if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        setTimeout(() => {
+            document.getElementById('grupo-nombre').focus();
+        }, 100);
     }
 
     function closeModalGrupo() {
@@ -244,6 +290,14 @@ export function init() {
         modalAlertCiclo.classList.add('hidden');
         formCiclo.reset();
         modalCiclo.classList.remove('hidden');
+
+        // Desplazar al inicio del contenedor y dar foco
+        const container = document.getElementById('module-container');
+        if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setTimeout(() => {
+            document.getElementById('ciclo-anio').focus();
+        }, 100);
     }
 
     function closeModalCiclo() {
@@ -284,6 +338,10 @@ export function init() {
             btnSubmit.textContent = 'Guardar Ciclo';
         }
     };
+
+    // Eventos de filtros
+    filterTurno.onchange = applyFilters;
+    filterCiclo.onchange = applyFilters;
 
     fetchCiclos();
     fetchGrupos();

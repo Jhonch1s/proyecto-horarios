@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,23 +12,36 @@
     <!-- Estilos de la aplicación -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    
+
     <div class="background-mesh"></div>
 
     <main class="container">
         <div class="glass-panel" id="auth-panel">
-            
+
             <!-- CONTENEDOR DE LOGIN -->
             <div class="form-container" id="login-container">
                 <div class="header">
                     <div class="logo">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <path d="M8 14h.01"></path>
+                            <path d="M12 14h.01"></path>
+                            <path d="M16 14h.01"></path>
+                            <path d="M8 18h.01"></path>
+                            <path d="M12 18h.01"></path>
+                            <path d="M16 18h.01"></path>
+                        </svg>
                     </div>
                     <h1>Bienvenido de nuevo</h1>
                     <p>Ingresa tus credenciales para acceder al sistema</p>
                 </div>
-                
+
                 <form id="login-form">
                     <div class="input-group">
                         <label for="login-email">Correo Electrónico</label>
@@ -51,7 +65,8 @@
                 </form>
 
                 <p class="switch-mode">
-                    ¿No tienes cuenta? <button type="button" class="link-btn" id="show-register">Regístrate aquí</button>
+                    ¿No tienes cuenta? <button type="button" class="link-btn" id="show-register">Regístrate
+                        aquí</button>
                 </p>
             </div>
 
@@ -59,12 +74,18 @@
             <div class="form-container hidden-form" id="register-container">
                 <div class="header">
                     <div class="logo">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <line x1="20" y1="8" x2="20" y2="14"></line>
+                            <line x1="23" y1="11" x2="17" y2="11"></line>
+                        </svg>
                     </div>
                     <h1>Crear Cuenta</h1>
                     <p>Regístrate para ver tu disponibilidad horaria</p>
                 </div>
-                
+
                 <form id="register-form">
                     <div class="input-group">
                         <label for="register-name">Nombre Completo</label>
@@ -98,4 +119,5 @@
     <script src="config.js?v=2"></script>
     <script src="auth.js?v=2"></script>
 </body>
+
 </html>

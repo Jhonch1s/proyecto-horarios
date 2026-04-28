@@ -16,6 +16,7 @@ export function init() {
     // Filtros
     const filterPills = document.querySelectorAll('.filter-pill');
     const btnClearFilters = document.getElementById('btn-clear-filters');
+    const countLabel = document.getElementById('materias-count');
 
     // Cliente global de Supabase
     const supabase = window.supabaseClient;
@@ -156,10 +157,12 @@ export function init() {
         if (activeFilters.length === 0) {
             renderMaterias(localMaterias);
             btnClearFilters.classList.add('hidden');
+            countLabel.textContent = `${localMaterias.length} asignaturas en total`;
         } else {
             const filtered = localMaterias.filter(mat => activeFilters.includes(mat.grado));
             renderMaterias(filtered);
             btnClearFilters.classList.remove('hidden');
+            countLabel.textContent = `${filtered.length} de ${localMaterias.length} filtradas`;
         }
     }
 
@@ -203,6 +206,14 @@ export function init() {
         }
         
         modal.classList.remove('hidden');
+
+        // Desplazar al inicio del contenedor y dar foco al primer campo
+        const container = document.getElementById('module-container');
+        if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setTimeout(() => {
+            document.getElementById('materia-nombre').focus();
+        }, 100);
     }
 
     function closeModal() {
