@@ -24,6 +24,7 @@ export function init() {
     
     // DOM Filtros
     const filterTurno = document.getElementById('filter-turno');
+    const filterGrado = document.getElementById('filter-grado');
     const filterCiclo = document.getElementById('filter-ciclo');
 
     const supabase = window.supabaseClient;
@@ -82,6 +83,12 @@ export function init() {
             filtered = filtered.filter(g => g.turno === t);
         }
 
+        // 1.5 Filtrar por Grado
+        const gr = filterGrado.value;
+        if (gr !== 'all') {
+            filtered = filtered.filter(g => g.grado === gr);
+        }
+
         // 2. Filtrar por Ciclo
         const c = filterCiclo.value;
         if (c !== 'all') {
@@ -113,6 +120,10 @@ export function init() {
             if (error) throw error;
 
             localGrupos = data || [];
+            
+            // Poblamos el filtro de grados dinámicamente antes de aplicar filtros
+            populateGradoFilter(localGrupos);
+            
             applyFilters();
             
             stateContainer.style.display = 'none';
@@ -120,6 +131,34 @@ export function init() {
         } catch (error) {
             console.error("Error al cargar grupos:", error);
             stateContainer.innerHTML = `<p style="color: var(--danger);">Error al cargar grupos: ${error.message}</p>`;
+        }
+    }
+
+    // Función para poblar el filtro de grados con valores reales de la DB
+    function populateGradoFilter(grupos) {
+        const filterGrado = document.getElementById('filter-grado');
+        if (!filterGrado) return;
+
+        // Extraer grados únicos y filtrar nulos
+        const gradosUnicos = [...new Set(grupos.map(g => g.grado).filter(grado => grado))];
+        
+        // Ordenarlos alfanuméricamente
+        gradosUnicos.sort();
+
+        // Guardar el valor seleccionado actualmente para no perderlo si re-poblamos
+        const currentValue = filterGrado.value;
+
+        filterGrado.innerHTML = '<option value="all">Todos los grados</option>';
+        gradosUnicos.forEach(grado => {
+            const opt = document.createElement('option');
+            opt.value = grado;
+            opt.textContent = grado;
+            filterGrado.appendChild(opt);
+        });
+
+        // Restaurar valor si existía
+        if (currentValue && gradosUnicos.includes(currentValue)) {
+            filterGrado.value = currentValue;
         }
     }
 
@@ -145,7 +184,7 @@ export function init() {
                     <h4>${g.nombre}</h4>
                     <div class="ciclo-label">
                         <i data-lucide="calendar" style="width:14px; height:14px;"></i>
-                        <span>${g.ciclos_lectivos ? g.ciclos_lectivos.anio : 'Sin ciclo'}</span>
+                        <span>${g.ciclos_lectivos ? g.ciclos_lectivos.anio : 'Sin ciclo'} | ${g.grado || 'S/G'}</span>
                     </div>
                 </div>
                 <div class="docente-actions">
@@ -209,6 +248,7 @@ export function init() {
             document.getElementById('modal-title-grupo').innerText = 'Editar Grupo';
             document.getElementById('grupo-id').value = data.id;
             document.getElementById('grupo-nombre').value = data.nombre;
+            document.getElementById('grupo-grado').value = data.grado || '';
             document.getElementById('grupo-turno').value = data.turno;
             document.getElementById('grupo-ciclo').value = data.ciclo_lectivo_id;
             document.getElementById('grupo-activo').checked = data.activo;
@@ -240,11 +280,12 @@ export function init() {
         e.preventDefault();
         const id = document.getElementById('grupo-id').value;
         const nombre = document.getElementById('grupo-nombre').value;
+        const grado = document.getElementById('grupo-grado').value;
         const turno = document.getElementById('grupo-turno').value;
         const ciclo_lectivo_id = parseInt(document.getElementById('grupo-ciclo').value);
         const activo = document.getElementById('grupo-activo').checked;
 
-        const payload = { nombre, turno, ciclo_lectivo_id, activo };
+        const payload = { nombre, grado, turno, ciclo_lectivo_id, activo };
 
         try {
             const btnSubmit = formGrupo.querySelector('button[type="submit"]');
@@ -341,6 +382,7 @@ export function init() {
 
     // Eventos de filtros
     filterTurno.onchange = applyFilters;
+    filterGrado.onchange = applyFilters;
     filterCiclo.onchange = applyFilters;
 
     fetchCiclos();

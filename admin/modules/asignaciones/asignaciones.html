@@ -1,12 +1,72 @@
 <div class="module-header">
     <div>
         <h2>Gestión de Asignaciones</h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Asigna docentes a grupos y horarios; valida conflictos.</p>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Vincule grupos con materias y docentes según el grado correspondiente.</p>
     </div>
+    <button class="btn primary-btn btn-icon" id="btn-add-asignacion" style="width: auto; padding: 12px 20px;">
+        <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+        <span>Nueva Asignación</span>
+    </button>
 </div>
 
-<div style="padding: 40px; text-align: center; background: rgba(30, 41, 59, 0.5); border-radius: 16px; border: 1px dashed var(--glass-border);">
-    <i data-lucide="clipboard-list" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 20px;"></i>
-    <h3 style="margin-bottom: 10px;">Módulo en construcción</h3>
-    <p style="color: var(--text-muted);">Aquí se implementará la lógica de asignación y validación.</p>
+<!-- CONTENEDOR ESTADO (Loader / Error) -->
+<div id="asignaciones-state-container" style="text-align: center; padding: 40px;">
+    <div class="admin-spinner" style="margin: 0 auto;"></div>
+</div>
+
+<!-- LISTADO DE ASIGNACIONES -->
+<div class="grid-cards" id="asignaciones-grid" style="display: none;">
+    <!-- Las asignaciones se cargarán aquí -->
+</div>
+
+<!-- MODAL CREAR / EDITAR ASIGNACIÓN -->
+<div id="modal-asignacion" class="docentes-modal hidden"> <!-- Reutilizamos clase modal de docentes por consistencia -->
+    <div class="docentes-modal-content glass-panel-admin" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 id="modal-title-asignacion">Nueva Asignación</h3>
+            <button class="close-btn" id="btn-close-modal-asignacion">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <form id="form-asignacion">
+            <input type="hidden" id="asignacion-id">
+            
+            <div class="input-group">
+                <label for="asignacion-grupo">Grupo</label>
+                <select id="asignacion-grupo" required>
+                    <option value="" disabled selected>Seleccione un grupo</option>
+                </select>
+                <small id="grupo-grado-info" style="color: var(--primary); font-size: 11px; margin-top: 4px; display: block;"></small>
+            </div>
+
+            <div class="input-group">
+                <label for="asignacion-materia">Materia (Filtrada por grado)</label>
+                <select id="asignacion-materia" required disabled>
+                    <option value="" disabled selected>Primero seleccione un grupo</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="asignacion-docente">Docente</label>
+                <select id="asignacion-docente" required>
+                    <option value="" disabled selected>Seleccione un docente</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="asignacion-celda">Celda Horaria (Día y Hora)</label>
+                <select id="asignacion-celda" required>
+                    <option value="" disabled selected>Seleccione una ubicación en la grilla</option>
+                </select>
+            </div>
+
+            <div class="alert hidden" id="modal-alert-asignacion"></div>
+
+            <div class="form-actions" style="margin-top: 20px; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn" id="btn-cancel-modal-asignacion" style="width: auto; background: rgba(255,255,255,0.1); color: white;">Cancelar</button>
+                <button type="submit" class="btn primary-btn" style="width: auto;">Guardar Asignación</button>
+            </div>
+        </form>
+    </div>
 </div>

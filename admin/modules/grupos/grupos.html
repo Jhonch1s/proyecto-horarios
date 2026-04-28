@@ -26,6 +26,12 @@
         </select>
     </div>
     <div class="input-group" style="margin: 0; flex: 1; min-width: 200px;">
+        <label for="filter-grado">Filtrar por Grado</label>
+        <select id="filter-grado">
+            <option value="all">Todos los grados</option>
+        </select>
+    </div>
+    <div class="input-group" style="margin: 0; flex: 1; min-width: 200px;">
         <label for="filter-ciclo">Filtrar por Año Lectivo</label>
         <select id="filter-ciclo">
             <option value="all">Todos los años</option>
@@ -59,6 +65,17 @@
             <div class="input-group">
                 <label for="grupo-nombre">Nombre del Grupo</label>
                 <input type="text" id="grupo-nombre" placeholder="Ej. 1° A" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="grupo-grado">Grado Escolar</label>
+                <select id="grupo-grado" required>
+                    <option value="" disabled selected>Seleccione el nivel</option>
+                    <option value="7º">7º</option>
+                    <option value="8º">8º</option>
+                    <option value="9º">9º</option>
+                    <option value="1º EMS">1º EMS</option>
+                </select>
             </div>
 
             <div class="form-row">

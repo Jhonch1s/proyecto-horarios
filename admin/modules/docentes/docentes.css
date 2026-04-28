@@ -188,7 +188,7 @@
     font-size: 14px;
 }
 
-textarea {
+textarea, select {
     width: 100%;
     padding: 12px 15px;
     background: var(--input-bg);
@@ -201,6 +201,11 @@ textarea {
     resize: none;
 }
 
-textarea:focus {
+textarea:focus, select:focus {
     border-color: var(--primary);
+}
+
+select option {
+    background: var(--bg-color);
+    color: white;
 }

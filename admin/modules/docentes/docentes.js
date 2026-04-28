@@ -27,6 +27,36 @@ export function init() {
         setTimeout(() => modalAlert.classList.add('hidden'), 5000);
     }
 
+    // Cargar departamentos (materias) desde Supabase
+    async function fetchDepartamentos() {
+        try {
+            const { data, error } = await supabase
+                .from('materias')
+                .select('nombre')
+                .eq('activo', true)
+                .order('nombre', { ascending: true });
+
+            if (error) throw error;
+
+            const selectDep = document.getElementById('docente-departamento');
+            // Limpiar opciones previas (manteniendo la primera)
+            selectDep.innerHTML = '<option value="">Seleccione un departamento...</option>';
+
+            if (data) {
+                // Eliminar duplicados si existen (aunque por esquema el nombre es UNIQUE)
+                const uniqueNames = [...new Set(data.map(m => m.nombre))];
+                uniqueNames.forEach(nombre => {
+                    const opt = document.createElement('option');
+                    opt.value = nombre;
+                    opt.textContent = nombre;
+                    selectDep.appendChild(opt);
+                });
+            }
+        } catch (error) {
+            console.error("Error al cargar departamentos:", error);
+        }
+    }
+
     // Cargar docentes desde Supabase
     async function fetchDocentes() {
         try {
@@ -249,5 +279,6 @@ export function init() {
     }
 
     // Iniciar la carga
+    fetchDepartamentos();
     fetchDocentes();
 }
